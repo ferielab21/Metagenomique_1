@@ -130,7 +130,10 @@ def get_identity(alignment_list: List[str]) -> float:
     :param alignment_list:  (list) A list of aligned sequences in the format ["SE-QUENCE1", "SE-QUENCE2"]
     :return: (float) The rate of identity between the two sequences.
     """
-    pass
+    sequence1, sequence2 = alignment_list[0], alignment_list[1]
+    identical_count = sum(a == b for a, b in zip(sequence1, sequence2))
+    identity_rate = (identical_count / len(sequence1)) * 100.0
+    return identity_rate
 
 def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: int, chunk_size: int, kmer_size: int) -> List:
     """Compute an abundance greedy clustering regarding sequence count and identity.
@@ -139,9 +142,9 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param amplicon_file: (Path) Path to the amplicon file in FASTA.gz format.
     :param minseqlen: (int) Minimum amplicon sequence length.
     :param mincount: (int) Minimum amplicon count.
-    :param chunk_size: (int) A fournir mais non utilise cette annee
-    :param kmer_size: (int) A fournir mais non utilise cette annee
-    :return: (list) A list of all the [OTU (str), count (int)] .
+    :param chunk_size: (int) A fournir mais non utilisé cette année.
+    :param kmer_size: (int) A fournir mais non utilisé cette année.
+    :return: (list) A list of all the [OTU (str), count (int)].
     """
     pass
 
