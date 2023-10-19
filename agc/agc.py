@@ -21,12 +21,13 @@ import os
 import gzip
 import statistics
 import textwrap
+import nwalign3 as nw
 from pathlib import Path
 from collections import Counter
 from typing import Iterator, Dict, List
 # https://github.com/briney/nwalign3
 # ftp://ftp.ncbi.nih.gov/blast/matrices/
-import nwalign3 as nw
+
 
 __author__ = "Feriel Abdi"
 __copyright__ = "Universite Paris Diderot"
@@ -132,9 +133,9 @@ def get_identity(alignment_list: List[str]) -> float:
     :return: (float) The rate of identity between the two sequences.
     """
     sequence1, sequence2 = alignment_list[0], alignment_list[1]
-    identical_count = sum(a == b for a, b in zip(sequence1, sequence2))
-    identity_rate = (identical_count / len(sequence1)) * 100.0
-    return identity_rate
+    same_count = sum(a == b for a, b in zip(sequence1, sequence2))
+    same_rate = (same_count / len(sequence1)) * 100.0
+    return same_rate
 
 def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: int, chunk_size: int, kmer_size: int) -> List:
     """Compute an abundance greedy clustering regarding sequence count and identity.
@@ -160,11 +161,9 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
                                         matrix=str(Path("/home/abdif/Metagenomique_1/agc/MATCH").parent / "MATCH"))
             aligned_sequence, aligned_otu_sequence = alignment
 
-            # Calculez le taux d'identité
             identical_count = sum(a == b for a, b in zip(aligned_sequence, aligned_otu_sequence))
             identity = (identical_count / len(aligned_sequence)) * 100.0
 
-            # Si le taux d'identité est > 97%, considérez la séquence comme similaire
             if identity > 97:
                 is_similar = True
                 break
