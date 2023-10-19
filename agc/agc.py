@@ -13,6 +13,7 @@
 
 """OTU clustering"""
 
+import numpy as np
 import gzip
 import argparse
 import sys
@@ -146,7 +147,32 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param kmer_size: (int) A fournir mais non utilisé cette année.
     :return: (list) A list of all the [OTU (str), count (int)].
     """
-    pass
+    otu_list = [] 
+    np.int = int
+
+    unique_seq = list(dereplication_fulllength(amplicon_file, minseqlen, mincount))
+
+    for seq, count in unique_seq:
+        is_similar = False
+
+        for otu_sequence, otu_count in otu_list:
+            alignment = nw.global_align(seq, otu_sequence, gap_open=-1, gap_extend=-1,
+                                        matrix=str(Path("/home/abdif/Metagenomique_1/agc/MATCH").parent / "MATCH"))
+            aligned_sequence, aligned_otu_sequence = alignment
+
+            # Calculez le taux d'identité
+            identical_count = sum(a == b for a, b in zip(aligned_sequence, aligned_otu_sequence))
+            identity = (identical_count / len(aligned_sequence)) * 100.0
+
+            # Si le taux d'identité est > 97%, considérez la séquence comme similaire
+            if identity > 97:
+                is_similar = True
+                break
+
+        if not is_similar:
+            otu_list.append((seq, count))
+
+    return otu_list
 
 
 def write_OTU(OTU_list: List, output_file: Path) -> None:
@@ -155,7 +181,15 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param OTU_list: (list) A list of OTU sequences
     :param output_file: (Path) Path to the output file
     """
-    pass
+    with open(output_file, 'w') as file:
+        otu_number = 1
+        for otu_seq, otu_count in OTU_list:
+            header = f">OTU_{otu_number} occurrence:{otu_count}\n"
+            formatted_sequence = textwrap.fill(otu_seq, width=80)
+            file.write(header)
+            file.write(formatted_sequence)
+            file.write('\n')
+            otu_number += 1
   
 
 
@@ -172,8 +206,9 @@ def main(): # pragma: no cover
     file = "../data/amplicon.fasta.gz"
     mseqlen = 120
     mcount = 50
-    test = dereplication_fulllength(file, mseqlen,mcount)
+    test = abundance_greedy_clustering(file, mseqlen, mcount, 0, 0)
     print(test)
+    write_OTU(test, args.output_file )
 
 if __name__ == '__main__':
     main()
