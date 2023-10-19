@@ -12,8 +12,6 @@
 #    http://www.gnu.org/licenses/gpl-3.0.html
 
 """OTU clustering"""
-
-import numpy as np
 import gzip
 import argparse
 import sys
@@ -21,10 +19,11 @@ import os
 import gzip
 import statistics
 import textwrap
-import nwalign3 as nw
 from pathlib import Path
 from collections import Counter
 from typing import Iterator, Dict, List
+import numpy as np
+import nwalign3 as nw
 # https://github.com/briney/nwalign3
 # ftp://ftp.ncbi.nih.gov/blast/matrices/
 
