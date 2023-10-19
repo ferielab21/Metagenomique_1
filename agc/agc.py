@@ -13,6 +13,7 @@
 
 """OTU clustering"""
 
+import gzip
 import argparse
 import sys
 import os
@@ -83,7 +84,19 @@ def read_fasta(amplicon_file: Path, minseqlen: int) -> Iterator[str]:
     :param minseqlen: (int) Minimum amplicon sequence length
     :return: A generator object that provides the Fasta sequences (str).
     """
-    pass
+    sequence = ""
+    with gzip.open(amplicon_file, "rt") as  monfich:
+        for line in monfich:
+            line = line.strip()
+            if line.startswith(">"):
+                if sequence and len(sequence) >= minseqlen: 
+                    yield(sequence)
+                sequence = ""
+            else:
+                sequence += line.strip()
+    
+    if sequence and len(sequence) >= minseqlen:
+        yield sequence
 
 
 def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int) -> Iterator[List]:
@@ -94,7 +107,22 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
     :param mincount: (int) Minimum amplicon count
     :return: A generator object that provides a (list)[sequences, count] of sequence with a count >= mincount and a length >= minseqlen.
     """
-    pass
+    count_seq = {}
+    for sequence in read_fasta(amplicon_file, minseqlen):
+        if sequence in count_seq:
+            count_seq[sequence] += 1
+        else :
+            count_seq[sequence] = 1
+    
+    sequences = [(seq, count) for seq, count in count_seq.items() if count >= mincount and len(seq) >= minseqlen]
+    
+    sequences_sort = sorted(sequences, key=lambda x: x[1], reverse=True)
+
+    for sequence, count in sequences_sort:
+        yield [sequence, count]        
+    
+    
+    
 
 def get_identity(alignment_list: List[str]) -> float:
     """Compute the identity rate between two sequences
@@ -125,6 +153,7 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param output_file: (Path) Path to the output file
     """
     pass
+  
 
 
 #==============================================================
@@ -137,8 +166,11 @@ def main(): # pragma: no cover
     # Get arguments
     args = get_arguments()
     # Votre programme ici
-
-
+    file = "../data/amplicon.fasta.gz"
+    mseqlen = 120
+    mcount = 50
+    test = dereplication_fulllength(file, mseqlen,mcount)
+    print(test)
 
 if __name__ == '__main__':
     main()
