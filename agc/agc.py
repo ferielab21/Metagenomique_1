@@ -203,11 +203,8 @@ def main(): # pragma: no cover
     # Get arguments
     args = get_arguments()
     # Votre programme ici
-    file = "../data/amplicon.fasta.gz"
-    mseqlen = 120
-    mcount = 50
-    test = abundance_greedy_clustering(file, mseqlen, mcount, 0, 0)
-    print(test)
+    file = args.amplicon_file
+    test = abundance_greedy_clustering(file,args.minseqlen, args.mincount , 0, 0)
     write_OTU(test, args.output_file )
 
 if __name__ == '__main__':
